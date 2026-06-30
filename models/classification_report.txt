@@ -1,0 +1,27 @@
+Best Model: Logistic Regression
+
+                   precision    recall  f1-score   support
+
+    Battery Issue       1.00      1.00      1.00        51
+     Camera Issue       1.00      1.00      1.00        51
+   Charging Issue       1.00      1.00      1.00        50
+    Display Issue       1.00      1.00      1.00        48
+Motherboard Issue       1.00      1.00      1.00        48
+    Network Issue       1.00      1.00      1.00        48
+   Software Issue       1.00      1.00      1.00        54
+    Speaker Issue       1.00      1.00      1.00        50
+
+         accuracy                           1.00       400
+        macro avg       1.00      1.00      1.00       400
+     weighted avg       1.00      1.00      1.00       400
+
+
+Confusion Matrix:
+[[51  0  0  0  0  0  0  0]
+ [ 0 51  0  0  0  0  0  0]
+ [ 0  0 50  0  0  0  0  0]
+ [ 0  0  0 48  0  0  0  0]
+ [ 0  0  0  0 48  0  0  0]
+ [ 0  0  0  0  0 48  0  0]
+ [ 0  0  0  0  0  0 54  0]
+ [ 0  0  0  0  0  0  0 50]]

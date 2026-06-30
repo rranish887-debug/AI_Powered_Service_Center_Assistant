@@ -1,0 +1,48 @@
+# Data Processing
+pandas
+numpy
+scipy
+
+# Visualization
+matplotlib
+plotly
+wordcloud
+
+# Machine Learning
+scikit-learn
+joblib
+
+# NLP and Sentiment Analysis
+nltk
+textblob
+regex
+
+# File Handling
+openpyxl
+pillow
+python-dotenv
+
+# Deep Learning / PyTorch
+torch
+
+# Hugging Face
+transformers
+sentence-transformers
+huggingface-hub
+
+# Vector Database
+faiss-cpu
+
+# LangChain / RAG
+langchain
+langchain-core
+langchain-community
+langchain-huggingface
+
+# Web Dashboard
+streamlit
+
+# Compatibility / Utilities
+protobuf<7
+requests
+tenacity<9

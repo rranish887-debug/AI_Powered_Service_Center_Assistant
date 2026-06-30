@@ -1,0 +1,108 @@
+Service Center Timings:
+Our service center operates from Monday to Saturday, 9:00 AM to 6:00 PM.
+The service center remains closed on Sundays and public holidays.
+Customers are advised to visit at least 30 minutes before closing time for new service requests.
+
+Warranty Policy:
+Devices under warranty within 1 year of purchase get free repairs for manufacturing defects.
+Warranty service requires a valid purchase bill, warranty card, or digital invoice.
+Physical damage, water damage, accidental damage, cracked screen, burned components, and unauthorized repair are not covered under warranty.
+
+Out-of-Warranty Policy:
+Devices outside the warranty period are eligible for paid repair service.
+Out-of-warranty customers must pay diagnostic charges, parts charges, and labor charges if applicable.
+The final cost depends on the device model, complaint type, part availability, and repair complexity.
+
+Diagnostic Charges:
+Out-of-warranty diagnostics cost $20.
+The diagnostic charge is waived if the customer proceeds with the repair.
+If the customer does not proceed with the repair, the diagnostic charge is non-refundable.
+
+Repair Timeline:
+Standard repairs usually take 1 to 3 days.
+Battery replacement usually takes 1 day.
+Software reset or OS reinstall usually takes same day or 1 day.
+Screen replacement usually takes 1 to 2 days.
+Motherboard repair or part unavailability may take up to 7 days.
+Repair time may increase if spare parts are not available.
+
+Battery Issues:
+If the battery drains fast, we recommend a battery health check.
+Battery replacement costs around $50.
+Battery replacement usually takes about 1 day.
+Battery issues may happen due to old battery, background apps, faulty charging IC, poor charging habits, or damaged battery cells.
+
+Screen Replacement:
+Cracked screens are replaced with OEM parts.
+Screen replacement cost ranges from $100 to $300 depending on the device model.
+Physical screen damage is not covered under warranty.
+Screen replacement usually takes 1 to 2 days depending on part availability.
+
+Software Issues:
+Software reset and OS reinstall are usually free under warranty.
+Out-of-warranty software service costs around $30.
+Software issues include app crashes, slow performance, update failure, boot loop, virus issues, and device stuck on logo.
+Customers are advised to back up important data before software repair.
+
+Charging Issues:
+Charging problems may be caused by a damaged charging port, faulty adapter, damaged cable, battery issue, or charging IC failure.
+Technicians will inspect the charging port, charger, cable, battery health, and charging IC.
+If the charging port is damaged, part replacement charges may apply.
+
+Network Issues:
+Network issues include weak signal, WiFi not connecting, Bluetooth not pairing, SIM not detected, and internet disconnecting frequently.
+Technicians will check SIM slot, network IC, WiFi module, Bluetooth module, and software network settings.
+
+Speaker and Microphone Issues:
+Speaker issues include low sound, no sound, crackling noise, distorted audio, and microphone not working.
+Technicians will inspect the speaker, microphone, audio IC, and software audio settings.
+
+Motherboard Issues:
+Motherboard issues are treated as high-priority hardware issues.
+Symptoms include device dead, automatic restart, no power, overheating, and power IC failure.
+Motherboard repair or replacement may take up to 7 days depending on part availability.
+Motherboard replacement cost depends on the model.
+
+Repair Tracking:
+Customers can track repair status using Customer ID and Phone Number on the service portal.
+The repair status may be Open, In Progress, or Closed.
+If the status is Open, the request has been registered.
+If the status is In Progress, the technician is working on the device.
+If the status is Closed, the repair has been completed.
+
+Pickup and Delivery:
+Customers must bring the service receipt or Customer ID while collecting the device.
+Home pickup and delivery may be available for selected locations.
+Delivery charges may apply depending on location.
+
+Data Backup Policy:
+Customers are responsible for backing up personal data before repair.
+The service center is not responsible for data loss during software reset, OS reinstall, motherboard repair, or storage replacement.
+Technicians may request permission before performing data-risk operations.
+
+Refund Policy:
+Diagnostic charges are non-refundable if the customer does not proceed with repair.
+Parts once installed are not refundable.
+Refunds are not provided after successful repair completion.
+
+Escalation Policy:
+If repair is delayed beyond the estimated timeline, customers can contact the service manager.
+For urgent cases, customers should provide Customer ID, device model, complaint details, and phone number.
+High-priority issues include motherboard issue, charging issue, and network issue.
+
+Required Documents:
+For warranty claims, customers must provide purchase bill, warranty card, or digital invoice.
+For repair tracking, customers must provide Customer ID and registered phone number.
+
+Customer Support:
+Customers can contact the service center during working hours.
+For support, customers should provide Customer ID, product brand, device model, complaint details, and phone number.
+
+Common FAQs:
+Battery replacement costs around $50.
+Screen replacement costs between $100 and $300.
+Out-of-warranty diagnostic charge is $20.
+Software reset costs around $30 for out-of-warranty devices.
+Standard repair time is 1 to 3 days.
+Motherboard repair may take up to 7 days.
+Physical damage is not covered under warranty.

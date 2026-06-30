@@ -1,0 +1,9 @@
+Module,Model,Accuracy,Precision,Recall,F1_Score,MAE,RMSE,R2_Score
+Ticket Classification,Logistic Regression,1.0,1.0,1.0,1.0,,,
+Ticket Classification,Linear SVM,1.0,1.0,1.0,1.0,,,
+Ticket Classification,Naive Bayes,1.0,1.0,1.0,1.0,,,
+Ticket Classification,Random Forest,1.0,1.0,1.0,1.0,,,
+Repair Time Prediction,Linear Regression,,,,,0.7623437731811213,0.9210057071942879,0.8413665895285865
+Repair Time Prediction,Decision Tree,,,,,0.9575,1.2971121771072849,0.6853519161156624
+Repair Time Prediction,Random Forest,,,,,0.8114374999999998,0.9897471583692474,0.8168029206635661
+Repair Time Prediction,Gradient Boosting,,,,,0.7720224033820731,0.9368358935612867,0.8358665636918508
