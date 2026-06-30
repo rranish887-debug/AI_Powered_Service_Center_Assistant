@@ -22,7 +22,7 @@ st.set_page_config(
 @st.cache_resource
 def load_bot():
     """Load advanced chatbot."""
-    bot = ServiceCenterRAG(use_llm=True)
+    bot = ServiceCenterRAG(use_llm=False)
     bot.build_or_load_index()
     return bot
 
