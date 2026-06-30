@@ -21,11 +21,12 @@ logs/
 chatbot/faiss_index/
 
 # Generated datasets
-data/*.csv
+# data/*.csv
 
 # Generated models
-models/*.pkl
-models/*.joblib
+
+# models/*.pkl
+# models/*.joblib
 
 # OS files
 .DS_Store
