@@ -1,7 +1,7 @@
 import os
 
-# Force Transformers to use PyTorch only.
-# This avoids Keras 3 / TensorFlow compatibility errors.
+# Force Hugging Face Transformers to use PyTorch only.
+# This avoids TensorFlow / Keras 3 compatibility issues.
 os.environ["USE_TF"] = "0"
 os.environ["USE_TORCH"] = "1"
 os.environ["TRANSFORMERS_NO_TF"] = "1"
@@ -54,8 +54,10 @@ def split_knowledge_base_by_sections(text: str) -> List[str]:
     sections = re.split(r"\n(?=[A-Za-z ]+:)", text.strip())
 
     clean_sections = []
+
     for section in sections:
         section = section.strip()
+
         if len(section) > 20:
             clean_sections.append(section)
 
@@ -73,47 +75,140 @@ def extract_customer_id(text: str) -> Optional[str]:
 
 
 def detect_intent(question: str) -> str:
-    """Detect user question intent."""
+    """
+    Detect user question intent.
+
+    Hardware, cost, and troubleshooting intents are checked before service timings.
+    This prevents questions like:
+    'speaker and display are not working'
+    from being incorrectly detected as service timings.
+    """
     q = question.lower()
 
     if extract_customer_id(question):
         return "repair_status"
 
-    if any(word in q for word in ["timing", "timings", "open", "close", "working", "hours"]):
-        return "service_timings"
+    # Product-specific display/screen cost questions
+    if (
+        ("display" in q or "screen" in q)
+        and ("cost" in q or "price" in q or "charge" in q or "charges" in q)
+        and ("laptop" in q or "mobile" in q or "phone" in q)
+    ):
+        return "product_display_cost"
 
-    if "warranty" in q or "guarantee" in q:
-        return "warranty"
+    # Charger / adapter cost questions
+    if (
+        ("charger" in q or "adapter" in q)
+        and ("cost" in q or "price" in q or "charge" in q or "charges" in q)
+    ):
+        return "charger_cost"
 
-    if "battery" in q:
-        return "battery"
+    # Multi-issue hardware problems
+    has_audio_issue = any(
+        word in q for word in ["speaker", "sound", "microphone", "audio"]
+    )
 
-    if any(word in q for word in ["screen", "display", "cracked"]):
+    has_display_issue = any(
+        word in q for word in ["screen", "display", "touch", "cracked"]
+    )
+
+    if has_audio_issue and has_display_issue:
+        return "multi_hardware_issue"
+
+    # Hardware / troubleshooting intents
+    if has_audio_issue:
+        return "speaker"
+
+    if has_display_issue:
         return "screen"
 
-    if any(word in q for word in ["software", "reset", "os", "update", "slow", "logo"]):
+    if any(word in q for word in ["battery", "drain", "backup"]):
+        return "battery"
+
+    if any(word in q for word in ["charging", "charger", "adapter", "port"]):
+        return "charging"
+
+    if any(word in q for word in ["network", "wifi", "bluetooth", "sim", "signal"]):
+        return "network"
+
+    if any(
+        word in q
+        for word in ["software", "reset", "os", "update", "slow", "logo", "app crash"]
+    ):
         return "software"
 
-    if any(word in q for word in ["diagnostic", "charge", "cost", "price", "fees"]):
-        return "charges"
-
-    if "motherboard" in q or "dead" in q:
+    if any(word in q for word in ["motherboard", "dead", "power issue", "no power"]):
         return "motherboard"
 
-    if any(word in q for word in ["repair", "days", "long", "duration", "time take"]):
+    # Analytics questions
+    if any(
+        word in q
+        for word in [
+            "most common",
+            "highest",
+            "average",
+            "how many",
+            "total",
+            "analysis",
+            "count",
+            "top",
+        ]
+    ):
+        return "analytics"
+
+    # Service timing should trigger only for service-center timing questions
+    if any(
+        phrase in q
+        for phrase in [
+            "service timing",
+            "service timings",
+            "service center timing",
+            "service center timings",
+            "working hours",
+            "opening time",
+            "closing time",
+            "are you open",
+            "open on sunday",
+            "open today",
+        ]
+    ):
+        return "service_timings"
+
+    if any(
+        word in q
+        for word in [
+            "warranty",
+            "guarantee",
+            "physical damage",
+            "water damage",
+            "bill",
+        ]
+    ):
+        return "warranty"
+
+    if any(
+        word in q
+        for word in ["diagnostic", "charge", "cost", "price", "fees", "refund"]
+    ):
+        return "charges"
+
+    if any(
+        phrase in q
+        for phrase in ["repair time", "how long", "how many days", "duration", "timeline"]
+    ):
         return "repair_timeline"
 
     if any(word in q for word in ["track", "status"]):
         return "tracking"
 
-    if "charging" in q or "charger" in q:
-        return "charging"
+    if any(word in q for word in ["backup", "data loss", "data"]):
+        return "data_backup"
 
-    if "network" in q or "wifi" in q or "bluetooth" in q or "sim" in q:
-        return "network"
+    if any(word in q for word in ["pickup", "delivery", "collect"]):
+        return "pickup_delivery"
 
-    if "speaker" in q or "sound" in q or "microphone" in q:
-        return "speaker"
+    if any(word in q for word in ["delay", "escalation", "manager", "late"]):
+        return "escalation"
 
     return "general"
 
@@ -121,58 +216,161 @@ def detect_intent(question: str) -> str:
 def direct_answer(question: str) -> Tuple[str, str, float]:
     """Return direct service-center answer for common questions."""
     intent = detect_intent(question)
+    q = question.lower()
+
+    # Product-wise display cost answers
+    if intent == "product_display_cost":
+        has_laptop = "laptop" in q
+        has_mobile = "mobile" in q or "phone" in q
+
+        if has_laptop and has_mobile:
+            return (
+                "For display replacement, the estimated cost depends on the device model. "
+                "Mobile display replacement usually costs around $80 to $180. "
+                "Laptop display replacement usually costs around $120 to $300. "
+                "Final cost may vary based on brand, screen size, display type, touch support, "
+                "and spare part availability.",
+                "screen_cost",
+                0.96,
+            )
+
+        if has_laptop:
+            return (
+                "Laptop display replacement usually costs around $120 to $300. "
+                "The final cost depends on brand, screen size, resolution, touch support, "
+                "and part availability.",
+                "laptop_display_cost",
+                0.96,
+            )
+
+        if has_mobile:
+            return (
+                "Mobile display replacement usually costs around $80 to $180. "
+                "The final cost depends on brand, model, OLED/LCD type, touch panel, "
+                "and part availability.",
+                "mobile_display_cost",
+                0.96,
+            )
+
+    # Product-wise charger / adapter cost answers
+    if intent == "charger_cost":
+        has_laptop = "laptop" in q
+        has_mobile = "mobile" in q or "phone" in q
+
+        if has_laptop and has_mobile:
+            return (
+                "For charger replacement, the estimated cost depends on the device model and adapter type. "
+                "Laptop charger replacement usually costs around $25 to $80 depending on brand, wattage, "
+                "connector type, and original adapter availability. Mobile charger replacement usually costs "
+                "around $10 to $40 depending on fast-charging support, cable type, and brand. Final cost is "
+                "confirmed after checking the device model and adapter specification.",
+                "charger_cost",
+                0.96,
+            )
+
+        if has_laptop:
+            return (
+                "Laptop charger replacement usually costs around $25 to $80. "
+                "The final cost depends on brand, wattage, connector type, USB-C or pin type, "
+                "and original adapter availability.",
+                "laptop_charger_cost",
+                0.96,
+            )
+
+        if has_mobile:
+            return (
+                "Mobile charger replacement usually costs around $10 to $40. "
+                "The final cost depends on brand, fast-charging support, cable type, "
+                "adapter wattage, and original charger availability.",
+                "mobile_charger_cost",
+                0.96,
+            )
+
+        return (
+            "Charger replacement cost depends on the device type. Laptop chargers usually cost around "
+            "$25 to $80, while mobile chargers usually cost around $10 to $40. Final cost is confirmed "
+            "after checking the model and adapter specification.",
+            "charger_cost",
+            0.95,
+        )
 
     answers: Dict[str, str] = {
         "service_timings": (
-            "Our service center operates Monday to Saturday, "
-            "9:00 AM to 6:00 PM. We are closed on Sundays and public holidays."
+            "Our service center operates Monday to Saturday, 9:00 AM to 6:00 PM. "
+            "We are closed on Sundays and public holidays."
         ),
         "warranty": (
             "Devices under warranty within 1 year of purchase get free repairs "
             "for manufacturing defects. Physical damage, water damage, accidental damage, "
-            "and cracked screens are not covered under warranty."
+            "cracked screens, burned components, and unauthorized repair are not covered."
         ),
         "battery": (
             "For battery drain issues, we recommend a battery health check. "
             "Battery replacement costs around $50 and usually takes about 1 day."
         ),
         "screen": (
-            "Cracked screens are replaced with OEM parts. "
-            "Screen replacement costs range from $100 to $300 depending on the model "
-            "and usually takes 1 to 2 days."
+            "Your display issue may be caused by a damaged display panel, loose display connector, "
+            "touch screen problem, or screen hardware fault. A technician should inspect the display "
+            "panel, touch sensor, and connector. Screen replacement may cost $100 to $300 depending "
+            "on the model."
+        ),
+        "speaker": (
+            "Your speaker issue may be caused by speaker damage, microphone fault, audio IC issue, "
+            "dust blockage, or software audio settings. A technician will inspect the speaker, "
+            "microphone, and audio IC."
+        ),
+        "multi_hardware_issue": (
+            "Your mobile has both speaker/audio and display-related symptoms. "
+            "For the speaker issue, the technician will check the speaker, microphone, audio IC, "
+            "and software audio settings. For the display issue, the technician will inspect the "
+            "display panel, touch sensor, and display connector. Please submit the device for "
+            "hardware diagnosis."
         ),
         "software": (
             "Software reset and OS reinstall are usually free under warranty. "
-            "Out-of-warranty software service costs around $30."
+            "Out-of-warranty software service costs around $30. Please back up important data "
+            "before software repair."
         ),
         "charges": (
-            "Out-of-warranty diagnostics cost $20. "
-            "This diagnostic charge is waived if you proceed with the repair. "
-            "Parts and labor charges are extra."
+            "Out-of-warranty diagnostics cost $20. This diagnostic charge is waived if you proceed "
+            "with the repair. Parts and labor charges are extra."
         ),
         "motherboard": (
-            "Motherboard issues are high-priority hardware issues. "
-            "Repair or replacement may take up to 7 days depending on part availability."
+            "Motherboard issues are high-priority hardware issues. Symptoms include device dead, "
+            "automatic restart, no power, overheating, and power IC failure. Repair or replacement "
+            "may take up to 7 days depending on part availability."
         ),
         "repair_timeline": (
-            "Standard repairs usually take 1 to 3 days. "
-            "Motherboard replacement or part unavailability may take up to 7 days."
+            "Standard repairs usually take 1 to 3 days. Battery replacement usually takes 1 day, "
+            "screen replacement takes 1 to 2 days, and motherboard repair may take up to 7 days."
         ),
         "tracking": (
-            "You can track repair status using your Customer ID and Phone Number "
-            "on the service portal."
+            "You can track repair status using your Customer ID and registered phone number "
+            "on the service portal. You can also ask me like: Track repair status for CUST00001."
         ),
         "charging": (
             "Charging problems may be caused by a damaged charging port, faulty adapter, "
-            "damaged cable, battery problem, or charging IC failure."
+            "damaged cable, battery issue, or charging IC failure. A technician will inspect "
+            "the charging port, adapter, cable, battery health, and charging IC."
         ),
         "network": (
-            "Network issues may involve weak signal, WiFi problems, Bluetooth pairing issues, "
-            "SIM detection failure, or network IC problems."
+            "Network issues may involve weak signal, WiFi not connecting, Bluetooth pairing issues, "
+            "SIM detection failure, internet disconnection, or network IC problems."
         ),
-        "speaker": (
-            "Speaker issues include low sound, no sound, crackling noise, microphone problems, "
-            "or distorted audio. A technician will inspect the speaker, microphone, and audio IC."
+        "data_backup": (
+            "Customers are responsible for backing up personal data before repair. The service center "
+            "is not responsible for data loss during software reset, OS reinstall, motherboard repair, "
+            "or storage replacement."
+        ),
+        "pickup_delivery": (
+            "Customers must bring the service receipt or Customer ID while collecting the device. "
+            "Home pickup and delivery may be available for selected locations, and delivery charges "
+            "may apply depending on location."
+        ),
+        "escalation": (
+            "If repair is delayed beyond the estimated timeline, customers can contact the service "
+            "manager. For urgent cases, provide Customer ID, device model, complaint details, and "
+            "phone number."
         ),
     }
 
@@ -180,8 +378,9 @@ def direct_answer(question: str) -> Tuple[str, str, float]:
         return answers[intent], intent, 0.95
 
     return (
-        "I can help with service timings, warranty, repair charges, repair status, "
-        "battery issues, screen replacement, software issues, charging problems, "
+        "Sorry, I can only help with service center related questions such as "
+        "service timings, warranty, repair charges, repair status, battery issues, "
+        "screen replacement, speaker issues, software issues, charging problems, "
         "network issues, and repair timelines.",
         intent,
         0.50,
@@ -193,7 +392,7 @@ def get_customer_status_answer(customer_id: str) -> str:
     df = load_service_data()
 
     if df is None:
-        return "Dataset not found. Please run `python data.py` first."
+        return "Dataset not found. Please upload `data/clean_service_center_data.csv` and redeploy."
 
     result = df[df["Customer_ID"].astype(str).str.upper() == customer_id.upper()]
 
@@ -220,13 +419,75 @@ def get_customer_status_answer(customer_id: str) -> str:
     )
 
 
+def get_analytics_answer(question: str) -> Optional[str]:
+    """Answer dataset analysis questions."""
+    df = load_service_data()
+
+    if df is None:
+        return None
+
+    q = question.lower()
+
+    if "total" in q and ("ticket" in q or "request" in q):
+        return f"There are {len(df)} total service tickets in the dataset."
+
+    if "most common" in q and "complaint" in q:
+        top = df["Complaint_Type"].value_counts().idxmax()
+        count = df["Complaint_Type"].value_counts().max()
+        return f"The most common complaint type is {top} with {count} tickets."
+
+    if "brand" in q and ("highest" in q or "most" in q or "top" in q):
+        top = df["Brand"].value_counts().idxmax()
+        count = df["Brand"].value_counts().max()
+        return f"The brand with the highest number of complaints is {top} with {count} complaints."
+
+    if "average repair time" in q or "avg repair time" in q:
+        avg_time = round(df["Repair_Time"].mean(), 2)
+        return f"The average repair time is {avg_time} days."
+
+    if "average repair cost" in q or "avg repair cost" in q:
+        avg_cost = round(df["Repair_Cost"].mean(), 2)
+        return f"The average repair cost is ${avg_cost}."
+
+    if "under warranty" in q:
+        count = df[df["Warranty_Status"] == "Under Warranty"].shape[0]
+        return f"There are {count} tickets under warranty."
+
+    if "out of warranty" in q:
+        count = df[df["Warranty_Status"] == "Out of Warranty"].shape[0]
+        return f"There are {count} out-of-warranty tickets."
+
+    if "technician" in q and ("most" in q or "highest" in q or "handled" in q):
+        top = df["Technician"].value_counts().idxmax()
+        count = df["Technician"].value_counts().max()
+        return f"The technician who handled the most tickets is {top} with {count} tickets."
+
+    if "positive" in q and "feedback" in q:
+        count = df[df["Sentiment"] == "Positive"].shape[0]
+        return f"There are {count} positive feedback records."
+
+    if "negative" in q and "feedback" in q:
+        count = df[df["Sentiment"] == "Negative"].shape[0]
+        return f"There are {count} negative feedback records."
+
+    if "high priority" in q:
+        count = df[df["Priority"] == "High"].shape[0]
+        return f"There are {count} high-priority tickets."
+
+    return None
+
+
 class ServiceCenterRAG:
     """
     Advanced AI Service Center Chatbot.
 
     Features:
     - Intent detection
+    - Product-wise display cost answers
+    - Charger / adapter cost answers
+    - Multi-issue hardware detection
     - Customer ID repair tracking
+    - Dataset analytics answers
     - FAISS semantic search
     - Sentence Transformer embeddings
     - Optional Hugging Face FLAN-T5 answer generation
@@ -290,11 +551,7 @@ class ServiceCenterRAG:
             return False
 
     def load_generator(self) -> None:
-        """
-        Load optional Hugging Face FLAN-T5 model using PyTorch only.
-
-        If loading fails, chatbot still works with RAG and direct answers.
-        """
+        """Load optional Hugging Face FLAN-T5 model using PyTorch only."""
         if not self.use_llm:
             return
 
@@ -332,8 +589,8 @@ class ServiceCenterRAG:
 
         prompt = f"""
 You are an AI assistant for a service center.
-Answer the customer question using only the context.
-Give a short, clear, helpful answer.
+Answer the customer question using only the given context.
+Give a short and helpful answer.
 
 Context:
 {context}
@@ -378,25 +635,40 @@ Answer:
                 confidence=0.98,
             )
 
-        base_answer, intent, confidence = direct_answer(question)
+        intent = detect_intent(question)
+
+        if intent == "analytics":
+            analytics_answer = get_analytics_answer(question)
+
+            if analytics_answer:
+                return ChatResult(
+                    answer=analytics_answer,
+                    sources=[],
+                    intent="analytics",
+                    confidence=0.92,
+                )
+
+        base_answer, detected_intent, confidence = direct_answer(question)
 
         context_chunks = self.retrieve_context(question, k=3)
         context = "\n\n".join(context_chunks)
 
-        if context and self.generator is not None and intent == "general":
+        # Use LLM only for general questions.
+        # For service-specific questions, direct answers are more reliable.
+        if context and self.generator is not None and detected_intent == "general":
             llm_answer = self.generate_llm_answer(question, context)
 
             if llm_answer:
                 return ChatResult(
                     answer=llm_answer,
                     sources=context_chunks,
-                    intent=intent,
+                    intent=detected_intent,
                     confidence=0.85,
                 )
 
         return ChatResult(
             answer=base_answer,
             sources=context_chunks,
-            intent=intent,
+            intent=detected_intent,
             confidence=confidence,
         )

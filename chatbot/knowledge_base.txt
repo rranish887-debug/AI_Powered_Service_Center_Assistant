@@ -106,3 +106,13 @@ Software reset costs around $30 for out-of-warranty devices.
 Standard repair time is 1 to 3 days.
 Motherboard repair may take up to 7 days.
 Physical damage is not covered under warranty.
+
+Product-wise Display Replacement Cost:
+Mobile display replacement usually costs around $80 to $180 depending on brand, model, OLED or LCD type, and touch panel.
+Laptop display replacement usually costs around $120 to $300 depending on brand, screen size, resolution, touch support, and part availability.
+Final display replacement cost is confirmed after technician diagnosis.
+
+Charger and Adapter Replacement Cost:
+Laptop charger replacement usually costs around $25 to $80 depending on brand, wattage, connector type, and original adapter availability.
+Mobile charger replacement usually costs around $10 to $40 depending on fast-charging support, cable type, and brand.
+Final charger cost is confirmed after checking the device model and adapter specification.
